@@ -1,34 +1,130 @@
-# Automated Irrigation Control System Project README.md
-## Abstract
-This report explores the development and implementation of an automated irrigation control system designed to optimize water usage in agricultural fields. The system utilizes a unique algorithm that integrates data from an online weather forecast API and real-time soil moisture levels to make precise irrigation decisions. By automating the irrigation process, the system enhances water conservation, reduces manual labor, and ensures optimal soil moisture for crop growth. The report details key design considerations, including sensor selection, system integration, and calibration, to achieve efficient water management. Performance evaluations demonstrate the system’s effectiveness in reducing water wastage and improving crop health, showcasing its potential for scalable agricultural applications.
+# PROJECT: AGRO_MATIC  
+🌱 **Automated Irrigation Control System**  
 
-## Introduction
-Efficient water management is crucial in agriculture to prevent water wastage and ensure optimal crop growth. Traditional irrigation methods often lead to overwatering or underwatering, negatively impacting yield and resource efficiency. This report introduces an automated irrigation control system that leverages real-time sensor data and weather forecasts to determine the precise irrigation needs of crops.
+## Table of Contents  
+1. [Abstract](#abstract)  
+2. [Features](#features)  
+3. [Hardware Requirements](#hardware-requirements)  
+4. [System Architecture](#system-architecture)  
+5. [Circuit Design](#circuit-design)  
+6. [Software Requirements](#software-requirements)  
+7. [Installation & Setup](#installation--setup)  
+8. [Contributing](#contributing)  
+9. [Roadmap](#roadmap)  
 
-The system consists of soil moisture sensors to measure current moisture levels, an online weather API to retrieve forecasted rainfall data, and a microcontroller-based control unit to process this information. Based on predefined thresholds, the system automatically activates or deactivates the irrigation system for an optimal duration. The report covers the system’s design, integration, performance evaluation, and potential improvements.
+---
 
-## Methodology
-### System Design
-The design phase focused on integrating soil moisture sensors, a weather API, and a microcontroller to form an efficient irrigation control system. Moisture levels are continuously monitored, and weather forecasts provide predictive insights. A decision-making algorithm determines whether irrigation is necessary and for how long. Below is a diagram of the system:
+## Abstract  
+Traditional irrigation methods waste water and lack real-time adaptability. **AgroMatic** implements a decentralized smart system using ESP-NOW communication between slave nodes and a master hub. Each slave module autonomously monitors soil moisture via capacitive sensors and controls irrigation solenoids, while the master aggregates data and relays it to the cloud. Built on ESP32 microcontrollers, this mesh-network approach reduces water usage by up to 30% while enabling scalable farm deployments.
 
-**Figure 1: Automated irrigation control system design**
+---
 
-### Component Selection
-- **Soil Moisture Sensor:** Measures real-time soil moisture levels to prevent overwatering or underwatering.
-- **Weather API:** Retrieves weather forecasts to incorporate expected rainfall into the irrigation decision-making process.
-- **Microcontroller (ESP32/Arduino):** Processes sensor data and controls the irrigation system.
-- **Water Pump & Solinoid Valve:** Regulates water flow based on microcontroller commands.
-- **LCD Display & LEDs:** Provide real-time status updates on moisture levels and irrigation activity.
+## Features  
+- **Decentralized Control**: Slave nodes operate independently using ESP-NOW protocol.
+- **Mesh Network Architecture**: Master ESP32 aggregates data from multiple slave units.
+- **Real-Time Monitoring**: Capacitive soil sensors prevent over/under-watering.
+- **Cloud Integration**: Master node exports metrics to IoT platforms (ThingSpeak/Cayenne).
+- **Low-Power Operation**: Optimized for battery-powered slave units with deep sleep modes.
+- **Modular Design**: Easily add/remove slave nodes without system reconfiguration.
+- **Fail-Safe Operation**: Local decision making continues if cloud connectivity is lost.
 
-### Circuit Construction
-- **Soil Moisture Sensor:** Connect the data pin to an analog input (e.g., A0) on the microcontroller and the other terminals to VCC and GND.
-- **ESP32/Arduino:** Interfaces with the moisture sensor, weather API, and controls the water pump relay.
-- **Water Pump Relay:** Connects to a digital output pin (e.g., D8) to control the pump’s on/off state.
-- **LCD Display & LEDs:** Indicate system status, including active irrigation cycles and moisture levels.
+---
 
-## Circuit Design
+## Hardware Requirements  
+### Slave Node (Per Unit)
+1. **ESP32 Microcontroller** (WiFi + Bluetooth)
+2. **Capacitive Soil Moisture Sensor** 
+3. **5V Solenoid Valve** with MOSFET driver
+4. **18650 Battery Pack** (2x 18650 + TP4056 charging module)
+5. **Weatherproof Enclosure**
 
+### Master Node
+1. **ESP32 Microcontroller** (with permanent power supply)
+2. **USB-to-TTL Converter** (for cloud connectivity)
+3. **4-Channel Relay Module** (optional for central water control)
 
+---
 
-## Code
-This Arduino/ESP32 program reads soil moisture data, retrieves weather forecasts, and makes irrigation decisions based on predefined thresholds.
+## System Architecture  
+![System Architecture](./Images/Agromatic_Architecture.drawio.png)  
+
+1. **Slave Nodes** (Field Units):
+   - Collect soil moisture data
+   - Control local solenoid valves
+   - Transmit data via ESP-NOW
+   - Battery-powered operation
+
+2. **Master Hub**:
+   - Aggregates data from all slaves
+   - Maintains real-time system status
+   - Pushes data to cloud via WiFi
+   - Optional central water control
+
+3. **Cloud Platform**:
+   - Stores historical data
+   - Provides remote monitoring dashboard
+   - Sends mobile alerts
+
+---
+
+## Circuit Design  
+![Circuit Diagram](./Images/Agromatic_Circuit_Diagram.drawio.png)  
+
+### Slave Node Connections
+| Component         | ESP32 Pin |  
+|-------------------|-----------|  
+| Soil Moisture     | GPIO 36   |  
+| Solenoid Valve    | GPIO 23   |  
+| Battery Level     | GPIO 39   |  
+
+### Master Node Connections
+| Component         | ESP32 Pin |  
+|-------------------|-----------|  
+| USB-to-TTL RX     | GPIO 16   |  
+| USB-to-TTL TX     | GPIO 17   |  
+| Status LED        | GPIO 2    |  
+
+---
+
+## Software Requirements  
+- **PlatformIO** (VS Code extension recommended)
+- **ESP-NOW Library** (peer-to-peer communication)
+- **ArduinoJSON** (data packet formatting)
+- **ThingSpeak/Cayenne** (cloud integration)
+- **FastLED** (for status indicators - optional)
+
+---
+
+## Installation & Setup  
+1. **Clone the Repository**:  
+   ```bash  
+   git clone https://github.com/yourusername/Agromatic.git  
+   cd Agromatic
+
+## Deliverables  
+1. [ ] **Slave Module Enclosure Design**  
+   - 3D-printed waterproof case for ESP32 + sensor  
+   - Mounting points for soil probe and battery pack  
+
+2. [ ] **Capacitive Sensor Calibration**  
+   - Documented voltage-to-moisture conversion table  
+   - Validation tests in 3 soil types (sand, loam, clay)  
+
+3. [ ] **Battery Runtime Optimization**  
+   - Achieve 45-day operation on 2x18650 batteries  
+   - Deep sleep current <10μA between measurements  
+
+4. [ ] **Solenoid Driver Circuit**  
+   - Tested MOSFET control circuit schematic  
+   - Over-current protection implementation
+   - Potential relay?  
+
+5. [ ] **ESP-NOW Packet Structure**  
+   - Defined binary protocol for sensor data (12-byte packets)  
+   - CRC error checking implementation  
+
+6. [ ] **Master Node Dashboard**  
+   - Basic serial console interface showing:  
+     - Connected slave count  
+     - Last received timestamps  
+     - Battery status per node  
