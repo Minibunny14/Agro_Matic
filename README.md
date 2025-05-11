@@ -23,7 +23,7 @@ Traditional irrigation methods waste water and lack real-time adaptability. **Ag
 - **Decentralized Control**: Slave nodes operate independently using ESP-NOW protocol.
 - **Mesh Network Architecture**: Master ESP32 aggregates data from multiple slave units.
 - **Real-Time Monitoring**: Capacitive soil sensors prevent over/under-watering.
-- **Cloud Integration**: Master node exports metrics to IoT platforms (ThingSpeak/Cayenne).
+- **Cloud Integration** *(Will be implemented later on)*: Master node exports metrics to IoT platforms (ThingSpeak/Cayenne).
 - **Low-Power Operation**: Optimized for battery-powered slave units with deep sleep modes.
 - **Modular Design**: Easily add/remove slave nodes without system reconfiguration.
 - **Fail-Safe Operation**: Local decision making continues if cloud connectivity is lost.
@@ -34,20 +34,24 @@ Traditional irrigation methods waste water and lack real-time adaptability. **Ag
 ### Slave Node (Per Unit)
 1. **ESP32 Microcontroller** (WiFi + Bluetooth)
 2. **Capacitive Soil Moisture Sensor** 
-3. **5V Solenoid Valve** with MOSFET driver
-4. **18650 Battery Pack** (2x 18650 + TP4056 charging module)
+3. **12V Solenoid Valve**
+4. **Mechanical Relay Module**
+4. **Buck Converter** (12V to 5V) – *for stable ESP32 power supply*
+4. **Batter Pack** - 12V 5A.
 5. **Weatherproof Enclosure**
 
 ### Master Node
 1. **ESP32 Microcontroller** (with permanent power supply)
-2. **USB-to-TTL Converter** (for cloud connectivity)
-3. **4-Channel Relay Module** (optional for central water control)
 
 ---
 
 ## System Architecture  
-![System Architecture](./Images/Agromatic_Architecture.drawio.png)  
-
+### System Architecture Diagram
+![System Architecture](./Images/Agro_Matic_System_Architechture_Diagram.drawio.png)  
+### Network Topology Diagram (*Cloud architechture not included*)
+![Network Topology Diagram](./Images/Agro_Matic_Network_Diagram.drawio.png)
+### Logic Control Diagram (*Slave Node Module*)
+![Logic Control Diagram](./Images/Agro_Matic_Slave_Module_Diagram.drawio.png)
 1. **Slave Nodes** (Field Units):
    - Collect soil moisture data
    - Control local solenoid valves
@@ -57,33 +61,23 @@ Traditional irrigation methods waste water and lack real-time adaptability. **Ag
 2. **Master Hub**:
    - Aggregates data from all slaves
    - Maintains real-time system status
-   - Pushes data to cloud via WiFi
-   - Optional central water control
+   - Pushes data to cloud via WiFi (*Optional*)
 
-3. **Cloud Platform**:
-   - Stores historical data
-   - Provides remote monitoring dashboard
-   - Sends mobile alerts
+3. **Data Sent from Slave to Master**:
+   
+   Each slave node transmits the following data packet to the master node over ESP-NOW:
+   - **Node ID (1 byte)** – Unique identifier for the slave node (Mac Address).  
+   - **Soil Moisture Level (2 bytes)** – Raw ADC reading from capacitive sensor. 
+   - **Timestamp (4 bytes)** – Unix time of last reading.
+   - **Status Flags (1 byte)** – Irrigation Status (On or Off).  
+   - **CRC Checksum (2 bytes)** – Ensures data integrit   
+
 
 ---
 
 ## Circuit Design  
-![Circuit Diagram](./Images/Agromatic_Circuit_Diagram.drawio.png)  
-
-### Slave Node Connections
-| Component         | ESP32 Pin |  
-|-------------------|-----------|  
-| Soil Moisture     | GPIO 36   |  
-| Solenoid Valve    | GPIO 23   |  
-| Battery Level     | GPIO 39   |  
-
-### Master Node Connections
-| Component         | ESP32 Pin |  
-|-------------------|-----------|  
-| USB-to-TTL RX     | GPIO 16   |  
-| USB-to-TTL TX     | GPIO 17   |  
-| Status LED        | GPIO 2    |  
-
+![Circuit Diagram (Slave Node Module)]()  
+![Circuit Diagram (Master Module)]()
 ---
 
 ## Software Requirements  
@@ -107,8 +101,7 @@ Traditional irrigation methods waste water and lack real-time adaptability. **Ag
    - Mounting points for soil probe and battery pack  
 
 2. [ ] **Capacitive Sensor Calibration**  
-   - Documented voltage-to-moisture conversion table  
-   - Validation tests in 3 soil types (sand, loam, clay)  
+   - Documented voltage-to-moisture conversion table 
 
 3. [ ] **Battery Runtime Optimization**  
    - Achieve 45-day operation on 2x18650 batteries  
@@ -127,4 +120,9 @@ Traditional irrigation methods waste water and lack real-time adaptability. **Ag
    - Basic serial console interface showing:  
      - Connected slave count  
      - Last received timestamps  
-     - Battery status per node  
+     - Irrigation status per node
+
+7. [ ] **Cloud Platform**:
+   - Stores historical data
+   - Provides remote monitoring dashboard
+   - Sends mobile alerts 
